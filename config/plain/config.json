@@ -13,7 +13,8 @@
         "iconPath" : "/fonts",
         "faPath"   : "/fontawesome/fonts",
         "imgPath"  : "/images",
-        "twigPath" : "/views"
+        "twigPath" : "/views",
+        "jsonPath" : "/content"
       }
     ]
   },

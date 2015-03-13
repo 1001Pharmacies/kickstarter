@@ -161,7 +161,7 @@ gulp.task('dist-icons', function (callback) {
     }
     if (config.sources.iconPath !== undefined) {
       gulp.src([
-        config.bowerDir + config.sources.iconPath + '/**.*'
+        config.sources.mainPath + config.sources.iconPath + '/**/*.*'
       ])
         .pipe(gulp.dest(config.dist.mainPath + config.dist.iconPath));
     }
@@ -295,10 +295,11 @@ gulp.task('compile-sass', function (callback) {
 
   callback();
 });
-gulp.task('compile-js', ['test-lint-js'], function () {
-  return gulp.src([
-    config.sources.mainPath + config.sources.jsPath + '/*.js',
-    config.sources.mainPath + config.sources.jsPath + '/external/*.js'
+gulp.task('compile-js', ['test-lint-js'], function (callback) {
+  gulp.src([
+    config.sources.mainPath + config.sources.jsPath + '/external/jquery.js',
+    config.sources.mainPath + config.sources.jsPath + '/external/bootstrap.js',
+    config.sources.mainPath + config.sources.jsPath + '/*.js'   
   ])
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
@@ -307,6 +308,8 @@ gulp.task('compile-js', ['test-lint-js'], function () {
     .pipe($.sourcemaps.write('./'))
     .pipe(gulp.dest(config.dist.mainPath + config.dist.jsPath))
     .pipe($.notify({message: "Compilation file: <%= file.relative %>"}));
+
+  callback();
 });
 gulp.task('compile-twig', function (callback) {
   if (_.includes(project.services, "twig")) {
@@ -387,14 +390,15 @@ gulp.task('watch', function (callback) {
     gulp.watch(lib.getSrc(config.sources, 'impPath', '/*.*'), ['optimize-images']);
   }
   if (_.includes(project.services, "twig")) {
-    gulp.watch(lib.getSrc(config.sources, 'twigPath', '/*.twig'), ['compile-twig']);
+    gulp.watch(lib.getSrc(config.sources, 'twigPath', '/**/*.twig'), ['compile-twig']);
+    gulp.watch(lib.getSrc(config.sources, 'jsonPath', '/*.twig.json'), ['compile-twig']);
     gulp.watch(lib.getSrc(config.dist, 'htmlPath', '/*.html'), ['test-validation-html']);
   }
   if (_.includes(project.services, "html")) {
     gulp.watch(lib.getSrc(config.sources, 'htmlPath', '/*.html'), ['test-validation-html']);
   }
 
-  callback();
+  runSequence('compile', callback);
 });
 
 // Launcher : execute main gulpfile task, sub gulpfile tasks after
